@@ -1,0 +1,12 @@
+appuifw2 - enhanced appuifw
+
+building:
+=========
+- install s60 3rd c++ sdk
+- install pys60 sdk
+- install ensymble
+- optionaly install opensignsis to use sign.bat
+- modify and run init_envs.bat
+- run build_phone.bat
+
+Build scripts copyright 2006 Simo Salminen (ssalmine@gmail.com)
