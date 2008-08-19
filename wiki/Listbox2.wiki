@@ -8,7 +8,7 @@ listbox = Listbox2(items=[], select_callback=None, double=False, icons=False, ma
 
 Creates a new Listbox2 instance.
 
-  * *items* is a list of [Item] objects representing the initial listbox contents,
+  * *items* is a sequence of [Item] objects representing the initial listbox contents,
   * *select_callback* is a callable called when user presses the Select button,
   * *double*, if True, creates a double lined listbox instead of a single lined one,
   * *icons*, if True, adds icons displayed next to listbox entries (works with either single or double lined listboxes), in such case, the [Item] objects must provide an [Icon] object in the `icon` attribute,
