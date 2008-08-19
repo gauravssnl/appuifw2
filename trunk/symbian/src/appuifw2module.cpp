@@ -21,6 +21,7 @@
 #include <aknindicatorcontainer.h>
 #include <eikenv.h>
 #include <eiklabel.h>
+#include <aknsutils.h>
 
 #include <Python.h>
 #include <symbian_python_ext_util.h>
@@ -28,13 +29,24 @@
 #include "appuifw2module.h"
 #include "appuifwutil.h"
 #include "pycallback.h"
-#include "text.h"
 #include "listbox2.h"
+#include "text2.h"
 
 #include "Container.h"
 
 const TInt KMaxNaviPaneTitleLength=32;
 typedef TBuf<KMaxNaviPaneTitleLength> TNaviPaneTitle;
+
+struct Control_object
+{
+	// The following fields are required by appuifw.Application.
+	// Note that PyObject_VAR_HEAD is here only to allow using of
+	// this structure as a Python object. However it must always
+	// be present for binary compatibility.
+	PyObject_VAR_HEAD
+	CCoeControl *control;
+	CAppuifwEventBindingArray *event_bindings;
+};
 
 #ifndef EKA2
 class CAppuifw2MenuCallback : public CAmarettoCallback
@@ -209,7 +221,7 @@ static void del_menucallback(CAppuifw2MenuCallback *aCallBack)
 	delete aCallBack;
 }
 
-static PyObject *set_menu_init_callback(PyObject* /*self*/, PyObject *args)
+static PyObject *patch_menu_dyn_init_callback(PyObject* /*self*/, PyObject *args)
 {
 	PyObject *callback, *ccb;
 	CAppuifw2MenuCallback *cb;
@@ -391,66 +403,194 @@ PyObject* refresh(PyObject* /*self*/, PyObject* /*args*/)
 	RETURN_PYNONE;
 }
 
+PyObject* bind(PyObject* /*self*/, PyObject *args)
+{
+	PyObject *co, *callback;
+	int key_code;
+	Control_object *o;
+	TInt error;
+	SAppuifwEventBinding bind_info;
+	
+	if (!PyArg_ParseTuple(args, "OiO", &co, &key_code, &callback))
+		return NULL;
+		
+	if (!PyCObject_Check(co)) {
+		PyErr_SetString(PyExc_TypeError, "invalid uicontrolapi object");
+		return NULL;
+	}
+	
+	if (callback == Py_None)
+		callback = NULL;
+	else if (!PyCallable_Check(callback)) {
+		PyErr_SetString(PyExc_TypeError, "callable expected");
+		return NULL;
+	}
+
+	bind_info.iType = SAmarettoEventInfo::EKey;
+	bind_info.iKeyEvent.iCode = key_code;
+	bind_info.iKeyEvent.iModifiers = 0; // not supported by appuifw, has to be 0
+	bind_info.iCb = callback;
+
+	o = (Control_object *) PyCObject_AsVoidPtr(co);
+
+	TRAP(error,
+		o->event_bindings->InsertEventBindingL(bind_info);
+	);
+	
+	if (error == KErrNone)
+		Py_XINCREF(callback);
+	
+	RETURN_ERROR_OR_PYNONE(error);
+}
+
+PyObject* get_skin_color(PyObject* /*self*/, PyObject *args)
+{
+	int major, minor, index;
+	TAknsItemID id;
+	TRgb color;
+	TInt error;
+	
+	if (!PyArg_ParseTuple(args, "iii", &major, &minor, &index))
+		return NULL;
+	
+	id.Set(major, minor);
+	
+	error = AknsUtils::GetCachedColor(AknsUtils::SkinInstance(), color,
+		id, index);
+	
+	if (error != KErrNone)
+		return SPyErr_SetFromSymbianOSErr(error);
+	
+	return Py_BuildValue("iii", color.Red(), color.Green(), color.Blue());
+}
+
+PyObject* get_language(PyObject* /*self*/, PyObject * /*args*/)
+{
+	return Py_BuildValue("i", User::Language());
+}
+
+class CMyControlContext : public CBase, public MCoeControlContext
+{
+public:
+	virtual void ActivateContext(CWindowGc& aGc,RDrawableWindow& aWindow) const
+	{
+		aGc.Activate(aWindow);
+		//aGc.SetClippingRect(TRect(0, 0, 50, 50));
+		aGc.SetDrawMode(CGraphicsContext::EDrawModeNOTSCREEN);
+	}
+	
+	virtual void ResetContext(CWindowGc& aGc) const
+	{
+		//aGc.DrawRect(TRect(10, 10, 50, 50));
+		//aGc.CancelClippingRect();
+		aGc.Reset();
+	}
+
+};
+
+PyObject* test(PyObject* /*self*/, PyObject * /*args*/)
+{
+/*
+	CAmarettoAppUi *appui;
+	CCoeControl *oldcont;
+	//struct _control_object *o;
+	
+	appui = get_app()->ob_data->appui;
+	
+	oldcont = appui->iContainer;
+	
+	appui->RemoveFromStack(oldcont);
+
+	appui->iContainer = CAmarettoContainer::NewL(oldcont->Rect());
+	
+	appui->AddToStackL(appui->iContainer);
+
+	
+	//delete (CAmarettoContainer *)oldcont;
+*/
+	RETURN_PYNONE;
+}
+
 static const PyMethodDef appuifw2_methods[] =
 {
-	{"set_menu_init_callback", (PyCFunction)set_menu_init_callback, METH_VARARGS},
+	{"patch_menu_dyn_init_callback", (PyCFunction)patch_menu_dyn_init_callback, METH_VARARGS},
 	{"command_text", (PyCFunction)command_text, METH_VARARGS},
 	{"set_navi", (PyCFunction)set_navi, METH_VARARGS},
 	{"refresh", (PyCFunction)refresh, METH_NOARGS},
-
-	//{"text_enable_scrollbars", (PyCFunction)text_enable_scrollbars, METH_VARARGS},
-	{"text_select_all", (PyCFunction)text_select_all, METH_VARARGS},
-	{"text_set_read_only", (PyCFunction)text_set_read_only, METH_VARARGS},
-	{"text_is_read_only", (PyCFunction)text_is_read_only, METH_VARARGS},
-	{"text_get_selection", (PyCFunction)text_get_selection, METH_VARARGS},
-	{"text_set_selection", (PyCFunction)text_set_selection, METH_VARARGS},
-	{"text_get_selection_len", (PyCFunction)text_get_selection_len, METH_VARARGS},
-	{"text_clear_selection", (PyCFunction)text_clear_selection, METH_VARARGS},
-	{"text_count_words", (PyCFunction)text_count_words, METH_VARARGS},
-	{"text_set_wordwrap", (PyCFunction)text_set_wordwrap, METH_VARARGS},
-	{"text_set_limit", (PyCFunction)text_set_limit, METH_VARARGS},
-	{"text_undo", (PyCFunction)text_undo, METH_VARARGS},
-	{"text_clear_undo", (PyCFunction)text_clear_undo, METH_VARARGS},
-	{"text_set_allow_undo", (PyCFunction)text_set_allow_undo, METH_VARARGS},
-	{"text_supports_undo", (PyCFunction)text_supports_undo, METH_VARARGS},
-	{"text_can_undo", (PyCFunction)text_can_undo, METH_VARARGS},
-	{"text_get_word_info", (PyCFunction)text_get_word_info, METH_VARARGS},
-	{"text_set_case", (PyCFunction)text_set_case, METH_VARARGS},
-	{"text_set_allowed_cases", (PyCFunction)text_set_allowed_cases, METH_VARARGS},
-	{"text_set_input_mode", (PyCFunction)text_set_input_mode, METH_VARARGS},
-	{"text_set_allowed_input_modes", (PyCFunction)text_set_allowed_input_modes, METH_VARARGS},
-	{"text_set_editor_flags", (PyCFunction)text_set_editor_flags, METH_VARARGS},
-	//{"text_set_alignment", (PyCFunction)text_set_alignment, METH_VARARGS},
-	{"text_set_undoable", (PyCFunction)text_set_undoable, METH_VARARGS},
-	{"text_can_cut", (PyCFunction)text_can_cut, METH_VARARGS},
-	{"text_cut", (PyCFunction)text_cut, METH_VARARGS},
-	{"text_can_copy", (PyCFunction)text_can_copy, METH_VARARGS},
-	{"text_copy", (PyCFunction)text_copy, METH_VARARGS},
-	{"text_can_paste", (PyCFunction)text_can_paste, METH_VARARGS},
-	{"text_paste", (PyCFunction)text_paste, METH_VARARGS},
-	//{"text_set_background_color", (PyCFunction)text_set_background_color, METH_VARARGS},
-	{"text_set_edit_callback", (PyCFunction)text_set_edit_callback, METH_VARARGS},
-	{"text_set_pos_callback", (PyCFunction)text_set_pos_callback, METH_VARARGS},
-	{"text_move", (PyCFunction)text_move, METH_VARARGS},
-	{"text_sel_pos", (PyCFunction)text_sel_pos, METH_VARARGS},
-	{"text_set_has_changed", (PyCFunction)text_set_has_changed, METH_VARARGS},
-	{"text_has_changed", (PyCFunction)text_has_changed, METH_VARARGS},
-	{"text_test", (PyCFunction)text_test, METH_VARARGS},
+	{"bind", (PyCFunction)bind, METH_VARARGS},
+	{"get_skin_color", (PyCFunction)get_skin_color, METH_VARARGS},
+	{"get_language", (PyCFunction)get_language, METH_NOARGS},
+	{"test", (PyCFunction)test, METH_NOARGS},
 
 	{"Listbox2_create", (PyCFunction)Listbox2_create, METH_VARARGS},
 	{"Listbox2_count", (PyCFunction)Listbox2_count, METH_VARARGS},
 	{"Listbox2_insert", (PyCFunction)Listbox2_insert, METH_VARARGS},
+	{"Listbox2_finish_insert", (PyCFunction)Listbox2_finish_insert, METH_VARARGS},
 	{"Listbox2_delete", (PyCFunction)Listbox2_delete, METH_VARARGS},
+	{"Listbox2_finish_delete", (PyCFunction)Listbox2_finish_delete, METH_VARARGS},
 	{"Listbox2_top", (PyCFunction)Listbox2_top, METH_VARARGS},
 	{"Listbox2_bottom", (PyCFunction)Listbox2_bottom, METH_VARARGS},
 	{"Listbox2_current", (PyCFunction)Listbox2_current, METH_VARARGS},
 	{"Listbox2_make_visible", (PyCFunction)Listbox2_make_visible, METH_VARARGS},
-	{"Listbox2_bind", (PyCFunction)Listbox2_bind, METH_VARARGS},
 	{"Listbox2_select", (PyCFunction)Listbox2_select, METH_VARARGS},
 	{"Listbox2_selection", (PyCFunction)Listbox2_selection, METH_VARARGS},
 	{"Listbox2_clear_selection", (PyCFunction)Listbox2_clear_selection, METH_VARARGS},
 	{"Listbox2_highlight_rect", (PyCFunction)Listbox2_highlight_rect, METH_VARARGS},
 	{"Listbox2_empty_text", (PyCFunction)Listbox2_empty_text, METH_VARARGS},
+
+	{"Text2_create", (PyCFunction)Text2_create, METH_VARARGS},
+	{"Text2_clear", (PyCFunction)Text2_clear, METH_VARARGS},
+	{"Text2_get_text", (PyCFunction)Text2_get_text, METH_VARARGS},
+	{"Text2_set_text", (PyCFunction)Text2_set_text, METH_VARARGS},
+	{"Text2_add_text", (PyCFunction)Text2_add_text, METH_VARARGS},
+	{"Text2_insert_text", (PyCFunction)Text2_insert_text, METH_VARARGS},
+	{"Text2_delete_text", (PyCFunction)Text2_delete_text, METH_VARARGS},
+	{"Text2_apply", (PyCFunction)Text2_apply, METH_VARARGS},
+	{"Text2_text_length", (PyCFunction)Text2_text_length, METH_VARARGS},
+	{"Text2_get_pos", (PyCFunction)Text2_get_pos, METH_VARARGS},
+	{"Text2_set_pos", (PyCFunction)Text2_set_pos, METH_VARARGS},
+	{"Text2_get_focus", (PyCFunction)Text2_get_focus, METH_VARARGS},
+	{"Text2_set_focus", (PyCFunction)Text2_set_focus, METH_VARARGS},
+	{"Text2_get_style", (PyCFunction)Text2_get_style, METH_VARARGS},
+	{"Text2_set_style", (PyCFunction)Text2_set_style, METH_VARARGS},
+	{"Text2_get_color", (PyCFunction)Text2_get_color, METH_VARARGS},
+	{"Text2_set_color", (PyCFunction)Text2_set_color, METH_VARARGS},
+	{"Text2_get_highlight_color", (PyCFunction)Text2_get_highlight_color, METH_VARARGS},
+	{"Text2_set_highlight_color", (PyCFunction)Text2_set_highlight_color, METH_VARARGS},
+	{"Text2_get_font", (PyCFunction)Text2_get_font, METH_VARARGS},
+	{"Text2_set_font", (PyCFunction)Text2_set_font, METH_VARARGS},
+	{"Text2_select_all", (PyCFunction)Text2_select_all, METH_VARARGS},
+	{"Text2_set_read_only", (PyCFunction)Text2_set_read_only, METH_VARARGS},
+	{"Text2_get_read_only", (PyCFunction)Text2_get_read_only, METH_VARARGS},
+	{"Text2_get_selection", (PyCFunction)Text2_get_selection, METH_VARARGS},
+	{"Text2_set_selection", (PyCFunction)Text2_set_selection, METH_VARARGS},
+	{"Text2_clear_selection", (PyCFunction)Text2_clear_selection, METH_VARARGS},
+	{"Text2_set_word_wrap", (PyCFunction)Text2_set_word_wrap, METH_VARARGS},
+	{"Text2_set_limit", (PyCFunction)Text2_set_limit, METH_VARARGS},
+	{"Text2_undo", (PyCFunction)Text2_undo, METH_VARARGS},
+	{"Text2_clear_undo", (PyCFunction)Text2_clear_undo, METH_VARARGS},
+	{"Text2_set_allow_undo", (PyCFunction)Text2_set_allow_undo, METH_VARARGS},
+	{"Text2_get_allow_undo", (PyCFunction)Text2_get_allow_undo, METH_VARARGS},
+	{"Text2_can_undo", (PyCFunction)Text2_can_undo, METH_VARARGS},
+	{"Text2_get_word_info", (PyCFunction)Text2_get_word_info, METH_VARARGS},
+	{"Text2_set_case", (PyCFunction)Text2_set_case, METH_VARARGS},
+	{"Text2_set_allowed_cases", (PyCFunction)Text2_set_allowed_cases, METH_VARARGS},
+	{"Text2_set_input_mode", (PyCFunction)Text2_set_input_mode, METH_VARARGS},
+	{"Text2_set_allowed_input_modes", (PyCFunction)Text2_set_allowed_input_modes, METH_VARARGS},
+	{"Text2_set_editor_flags", (PyCFunction)Text2_set_editor_flags, METH_VARARGS},
+	{"Text2_set_undo_buffer", (PyCFunction)Text2_set_undo_buffer, METH_VARARGS},
+	{"Text2_can_cut", (PyCFunction)Text2_can_cut, METH_VARARGS},
+	{"Text2_cut", (PyCFunction)Text2_cut, METH_VARARGS},
+	{"Text2_can_copy", (PyCFunction)Text2_can_copy, METH_VARARGS},
+	{"Text2_copy", (PyCFunction)Text2_copy, METH_VARARGS},
+	{"Text2_can_paste", (PyCFunction)Text2_can_paste, METH_VARARGS},
+	{"Text2_paste", (PyCFunction)Text2_paste, METH_VARARGS},
+	{"Text2_move", (PyCFunction)Text2_move, METH_VARARGS},
+	{"Text2_move_display", (PyCFunction)Text2_move_display, METH_VARARGS},
+	{"Text2_set_has_changed", (PyCFunction)Text2_set_has_changed, METH_VARARGS},
+	{"Text2_get_has_changed", (PyCFunction)Text2_get_has_changed, METH_VARARGS},
+	{"Text2_xy2pos", (PyCFunction)Text2_xy2pos, METH_VARARGS},
+	{"Text2_pos2xy", (PyCFunction)Text2_pos2xy, METH_VARARGS},
 
 	{0, 0} /* sentinel */
 };

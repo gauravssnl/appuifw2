@@ -1,7 +1,8 @@
 appuifw2 - enhanced appuifw
 
-building:
-=========
+Building
+========
+
 - install s60 3rd c++ sdk
 - install pys60 sdk
 - install ensymble
@@ -10,3 +11,18 @@ building:
 - run build_phone.bat
 
 Build scripts copyright 2006 Simo Salminen (ssalmine@gmail.com)
+
+Testing new Text control in Python Shell
+========================================
+
+Open the Python Shell and select Interactive Console from Options menu.
+Execute the following commands:
+
+>>> import appuifw, appuifw2, __main__, series60_console
+>>> appuifw.Text = lambda: appuifw2.Text(skinned=True)
+>>> __main__.my_console = series60_console.Console()
+>>>
+
+Now close the interactive console using the Exit key. The screen will
+switch to a fully skinned Text console with scrollbar. You can reopen
+the console or start some scripts to test it.

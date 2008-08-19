@@ -93,7 +93,7 @@ struct Listbox2_do_init_scrollbars_params
 	CAsyncCallBack *asynccb;
 };
 
-TInt Listbox2_do_init_scrollbars(TAny *aParams)
+static TInt Listbox2_do_init_scrollbars(TAny *aParams)
 {
 	Listbox2_do_init_scrollbars_params *params;
 	
@@ -116,7 +116,7 @@ TInt Listbox2_do_init_scrollbars(TAny *aParams)
 	return error;
 }
 
-void Listbox2_init_scrollbars(CEikListBox *aControl)
+static void Listbox2_init_scrollbars(CEikListBox *aControl)
 {
 	CAsyncCallBack *asynccb = new CAsyncCallBack(CActive::EPriorityHigh);
 	if (!asynccb)
@@ -146,6 +146,8 @@ public:
 					sbar->SetScrollBarVisibilityL(CEikScrollBarFrame::EOn,
 						CEikScrollBarFrame::EAuto);
 					if (!iScrollBarsInitialized) {
+						// this is done because the scrollbars can have
+						// a wrong position, nothing else worked
 						Listbox2_init_scrollbars(this);
 						iScrollBarsInitialized = ETrue;
 					}
@@ -245,7 +247,7 @@ private:
 	TBool iScrollBarsInitialized;
 };
 
-Listbox2_object *PyCObject_AsListbox2(PyObject *co)
+static Listbox2_object *PyCObject_AsListbox2(PyObject *co)
 {
 	Listbox2_object *o;
 	
@@ -259,7 +261,7 @@ Listbox2_object *PyCObject_AsListbox2(PyObject *co)
 	return NULL;
 }
 
-void Listbox2_destroy(Listbox2_object *o)
+static void Listbox2_destroy(Listbox2_object *o)
 {
 	if (o->control) {
 		switch (o->listbox_type) {
@@ -301,7 +303,7 @@ PyObject* Listbox2_create(PyObject* /*self*/, PyObject *args)
 		if (select_callback == Py_None)
 			select_callback = NULL;
 		else if (!PyCallable_Check(select_callback)) {
-			PyErr_SetString(PyExc_TypeError, "callable expected");
+			PyErr_SetString(PyExc_TypeError, "select callback must be a callable");
 			return NULL;
 		}
 	}
@@ -563,7 +565,6 @@ PyObject* Listbox2_insert(PyObject* /*self*/, PyObject *args)
 			items->InsertL(pos, buf);
 		if (icon)
 			o->icons->AppendL(icon);
-		o->control->HandleItemAdditionL();
 	)
 	
 	if (error != KErrNone)
@@ -572,16 +573,35 @@ PyObject* Listbox2_insert(PyObject* /*self*/, PyObject *args)
 	return Py_BuildValue("i", pos);
 }
 
+PyObject* Listbox2_finish_insert(PyObject* /*self*/, PyObject *args)
+{
+	PyObject *co;
+	Listbox2_object *o;
+	TInt error;
+	
+	if (!PyArg_ParseTuple(args, "O", &co))
+		return NULL;
+		
+	if (!(o = PyCObject_AsListbox2(co)))
+		return NULL;
+
+	TRAP(error,
+		o->control->HandleItemAdditionL();
+	);
+
+	RETURN_ERROR_OR_PYNONE(error);
+}
+
 PyObject* Listbox2_delete(PyObject* /*self*/, PyObject *args)
 {
 	PyObject *co;
-	int pos, count=1;
+	int pos=-1, count=-1;
 	Listbox2_object *o;
 	CTextListBoxModel *model;
 	CDesCArray *items;
 	TInt error, ipos;
 	
-	if (!PyArg_ParseTuple(args, "Oi|i", &co, &pos, &count))
+	if (!PyArg_ParseTuple(args, "O|ii", &co, &pos, &count))
 		return NULL;
 		
 	if (!(o = PyCObject_AsListbox2(co)))
@@ -590,7 +610,13 @@ PyObject* Listbox2_delete(PyObject* /*self*/, PyObject *args)
 	model = (CTextListBoxModel *)o->control->Model();
 	items = (CDesCArray *)model->ItemTextArray();
 
-	if (pos < 0 || pos >= model->NumberOfItems()) {
+	if (pos < 0)
+		pos = 0;
+
+	if (count < 0)
+		count = model->NumberOfItems()-pos;
+
+	if (pos+count > model->NumberOfItems()) {
 		PyErr_SetString(PyExc_IndexError, "index out of range");
 		return NULL;
 	}
@@ -635,6 +661,21 @@ PyObject* Listbox2_delete(PyObject* /*self*/, PyObject *args)
 			}
 		}
 	}
+
+	RETURN_PYNONE;
+}
+
+PyObject* Listbox2_finish_delete(PyObject* /*self*/, PyObject *args)
+{
+	PyObject *co;
+	Listbox2_object *o;
+	TInt error;
+	
+	if (!PyArg_ParseTuple(args, "O", &co))
+		return NULL;
+		
+	if (!(o = PyCObject_AsListbox2(co)))
+		return NULL;
 
 	TRAP(error,
 		o->control->HandleItemRemovalL();
@@ -706,6 +747,10 @@ PyObject* Listbox2_current(PyObject* /*self*/, PyObject *args)
 		o->control->SetCurrentItemIndex(pos);
 	}
 
+	if (old < 0) {
+		RETURN_PYNONE;
+	}
+
 	return Py_BuildValue("i", old);
 }
 
@@ -729,43 +774,6 @@ PyObject* Listbox2_make_visible(PyObject* /*self*/, PyObject *args)
 	o->control->ScrollToMakeItemVisible(pos);
 	
 	RETURN_PYNONE;
-}
-
-PyObject* Listbox2_bind(PyObject* /*self*/, PyObject *args)
-{
-	PyObject *co, *callback;
-	int key_code;
-	Listbox2_object *o;
-	TInt error;
-	SAppuifwEventBinding bind_info;
-	
-	if (!PyArg_ParseTuple(args, "OiO", &co, &key_code, &callback))
-		return NULL;
-		
-	if (!(o = PyCObject_AsListbox2(co)))
-		return NULL;
-	
-	if (callback == Py_None)
-		callback = NULL;
-	else if (!PyCallable_Check(callback)) {
-		PyErr_SetString(PyExc_TypeError, "callable expected");
-		return NULL;
-	}
-
-	bind_info.iType = SAmarettoEventInfo::EKey;
-	bind_info.iKeyEvent.iCode = key_code;
-	bind_info.iKeyEvent.iModifiers = 0; // not supported by appuifw, has to be 0
-	bind_info.iCb = callback;
-	Py_XINCREF(callback);
-
-	TRAP(error,
-		o->event_bindings->InsertEventBindingL(bind_info);
-	);
-	
-	if (error != KErrNone)
-		Py_XDECREF(callback);
-	
-	RETURN_ERROR_OR_PYNONE(error);
 }
 
 PyObject* Listbox2_select(PyObject* /*self*/, PyObject *args)

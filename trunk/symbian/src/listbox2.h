@@ -21,12 +21,13 @@
 PyObject* Listbox2_create(PyObject* /*self*/, PyObject *args);
 PyObject* Listbox2_count(PyObject* /*self*/, PyObject *args);
 PyObject* Listbox2_insert(PyObject* /*self*/, PyObject *args);
+PyObject* Listbox2_finish_insert(PyObject* /*self*/, PyObject *args);
 PyObject* Listbox2_delete(PyObject* /*self*/, PyObject *args);
+PyObject* Listbox2_finish_delete(PyObject* /*self*/, PyObject *args);
 PyObject* Listbox2_top(PyObject* /*self*/, PyObject *args);
 PyObject* Listbox2_bottom(PyObject* /*self*/, PyObject *args);
 PyObject* Listbox2_current(PyObject* /*self*/, PyObject *args);
 PyObject* Listbox2_make_visible(PyObject* /*self*/, PyObject *args);
-PyObject* Listbox2_bind(PyObject* /*self*/, PyObject *args);
 PyObject* Listbox2_select(PyObject* /*self*/, PyObject *args);
 PyObject* Listbox2_clear_selection(PyObject* /*self*/, PyObject *args);
 PyObject* Listbox2_selection(PyObject* /*self*/, PyObject *args);

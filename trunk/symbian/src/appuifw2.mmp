@@ -25,8 +25,9 @@ SYSTEMINCLUDE  	\epoc32\include\python
 LIBRARY 	python222.lib euser.lib avkon.lib
 LIBRARY		eikctl.lib eikcoctl.lib uiklaf.lib
 LIBRARY		form.lib egul.lib etext.lib eikcore.lib 
-LIBRARY		cone.lib bafl.lib aknicon.lib
+LIBRARY		cone.lib bafl.lib aknicon.lib gdi.lib
 LIBRARY		aknskins.lib aknskinsrv.lib aknswallpaperutils.lib
+LIBRARY		estor.lib estlib.lib
 
-SOURCE		appuifw2module.cpp appuifwutil.cpp pycallback.cpp text.cpp listbox2.cpp
-
+SOURCE		appuifw2module.cpp appuifwutil.cpp pycallback.cpp listbox2.cpp text2.cpp
+SOURCE		fontspec.cpp colorspec.cpp

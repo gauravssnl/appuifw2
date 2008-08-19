@@ -27,6 +27,10 @@
 #include <eikdef.h>
 #include <eiklbx.h>
 #include <eiklbo.h>
+#include <aknnavi.h>
+#include <akntabgrp.h>
+
+#include "appuifwutil.h"
 
 #ifndef EKA2
 class CAmarettoContainer : public CCoeControl, MCoeControlObserver
