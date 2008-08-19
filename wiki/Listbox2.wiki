@@ -40,7 +40,7 @@ append(item)
 
 Appends an item to the end of the list.
 
-*item* must be an [Item] object.
+  * *item* must be an [Item] object.
 
 {{{
 extend(items)
@@ -48,9 +48,131 @@ extend(items)
 
 Appends many items to the end of the list.
 
-*itmes* must be a sequence of [Item] objects.
+  * *itmes* must be a sequence of [Item] objects.
 
+{{{
+insert(position, item)
+}}}
 
-=== Properties ===
+Inserts an item at given position.
 
-None.
+  * *position* is the item position, 0 will insert the item at the top.
+  * *item* must be an [Item] object.
+
+{{{
+remove(item)
+}}}
+
+Removes given item from the listbox. If the item isn't found, a `ValueError` exception is raised.
+
+  * *item* is an [Item] object to remove.
+
+{{{
+pop([position])
+}}}
+
+Pops an item from the listbox and returns it. If position isn't specified, pops the last item. Raises an `IndexError` if the listbox is empty.
+
+  * *position* is an optional item position, last item is popped if omitted; square brackets indicate that the argument is optional.
+
+{{{
+sort([cmpfunc])
+}}}
+
+Sorts the items in the listbox. If the compare function isn't provided, sorts alphabetically using a case-insensitive comparison of items titles and subtitles.
+
+  * *cmpfunc* in an optional compare function receiving two [Item] objects and returning an integer; for more information refer to Python list.sort function documentation.
+
+{{{
+reverse()
+}}}
+
+Reverses the order of items in the listbox.
+
+{{{
+current()
+}}}
+
+Returns the index of currently selected item.
+
+{{{
+set_current(position)
+}}}
+
+Selects an item.
+
+  * *position* is an index of the item to select.
+
+{{{
+current_item()
+}}}
+
+Returns the currently selected [Item] object. This is equivalent to `listbox[listbox.current()]`.
+
+{{{
+top()
+}}}
+
+{{{
+set_top(position)
+}}}
+
+{{{
+top_item()
+}}}
+
+{{{
+bottom()
+}}}
+
+{{{
+bottom_item()
+}}}
+
+{{{
+make_visible(position)
+}}}
+
+{{{
+bind(event_code, callback)
+}}}
+
+{{{
+marked()
+}}}
+
+Returns a list of indexes of currently marked items.
+
+{{{
+marked_items()
+}}}
+
+Returns a list of currently marked [Item] objects.
+
+{{{
+clear_marked()
+}}}
+
+Unmarks all marked items.
+
+{{{
+empty_list_text()
+}}}
+
+Returns the text displayed in the center of the screen when the list is empty.
+
+{{{
+set_empty_list_text(text)
+}}}
+
+Sets a new text displayed in the center of the screen when the list is empty.
+
+{{{
+highlight_rect()
+}}}
+
+Returns a `(left, top, width, height)` tuple representing the item selection box.
+
+=== Remarks ===
+
+Listbox2 class derives from Python `list` type and as such behaves like a `list` object and provides all other `list` methods for manipulation of the items. One can access and replace the items by indexing for example.
