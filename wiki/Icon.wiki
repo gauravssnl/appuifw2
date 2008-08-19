@@ -1,0 +1,3 @@
+#summary Icon object API
+
+appuifw2.Icon object is derived from the appuifw module without modification. Look into the PyS60 documentation for more information about the Icon objects.
