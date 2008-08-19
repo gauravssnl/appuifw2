@@ -1,13 +1,56 @@
 #summary Listbox2 UI control API
 
-= Introduction =
+=== Usage ===
 
-Add your content here.
+{{{
+listbox = Listbox2(items=[], select_callback=None, double=False, icons=False, markable=False)
+}}}
+
+Creates a new Listbox2 instance.
+
+  * *items* is a list of [Item] objects representing the initial listbox contents,
+  * *select_callback* is a callable called when user presses the Select button,
+  * *double*, if True, creates a double lined listbox instead of a single lined one,
+  * *icons*, if True, adds icons displayed next to listbox entries (works with either single or double lined listboxes), in such case, the [Item] objects must provide an [Icon] object in the `icon` attribute,
+  * *markable*, if True, allows the user to mark the items using the Shift key.
+
+=== Methods ===
+
+{{{
+begin_update()
+}}}
+
+If a lot of items have to be added/updated/deleted and the listbox is currently visible, this method should be used to suppress multiple view updates. After all items have been processed, `end_update` should be called.
+
+{{{
+end_update()
+}}}
+
+Finishes processing started with `begin_update` and updates the listbox view.
+
+{{{
+clear()
+}}}
+
+Removes all items.
+
+{{{
+append(item)
+}}}
+
+Appends an item to the end of the list.
+
+*item* must be an [Item] object.
+
+{{{
+extend(items)
+}}}
+
+Appends many items to the end of the list.
+
+*itmes* must be a sequence of [Item] objects.
 
 
-= Details =
+=== Properties ===
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+None.
