@@ -113,29 +113,50 @@ Returns the currently selected [Item] object. This is equivalent to `listbox[lis
 top()
 }}}
 
+Returns an index of the item visible at the top of the screen.
+
 {{{
 set_top(position)
 }}}
+
+Moves the list view so that the item at given position is visible at the top of the screen.
+
+  * *position* is the position of the item.
 
 {{{
 top_item()
 }}}
 
+Returns the [Item] object of the item visible at the top of the screen.
+
 {{{
 bottom()
 }}}
+
+Returns an index of the item visible at the bottom of the screen.
 
 {{{
 bottom_item()
 }}}
 
+Returns the [Item] object of the item visible at the bottom of the screen.
+
 {{{
 make_visible(position)
 }}}
 
+Moves the list view so that the item at given position is visible.
+
+  * *position* is the position of the item.
+
 {{{
 bind(event_code, callback)
 }}}
+
+Binds a callable to a key. The callable will be called when the key is pressed. The key press event is always passed to the control.
+
+  * *event_code* is the key code, you can use codes defined in `key_codes` module,
+  * *callback* is a callable to be called when the key is pressed.
 
 {{{
 marked()
