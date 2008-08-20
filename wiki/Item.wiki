@@ -1,6 +1,6 @@
 #summary Item object
 
-Item objects are used by the [Listbox2] and [Menu] classes to represent listbox items and menu items respectively.
+Item objects are used by the [Listbox2] and [Menu] classes to represent listbox items and menu items, respectively.
 
 === Usage ===
 
