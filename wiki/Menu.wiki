@@ -1,0 +1,1 @@
+#summary Represents application and popup menus
