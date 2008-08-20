@@ -1,4 +1,4 @@
-#summary Item class, represents a Listbox2 item and a Menu item
+#summary Item object, represents a Listbox2 item and a Menu item
 
 Item objects are used by the [Listbox2] and [Menu] classes to represent listbox items and menu items, respectively.
 
