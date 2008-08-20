@@ -1,0 +1,1 @@
+#summary Provides an easy way to manage application views
