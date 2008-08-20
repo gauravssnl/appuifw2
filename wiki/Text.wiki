@@ -1,0 +1,1 @@
+#summary Native S60 text editor with enhanced capabilities
