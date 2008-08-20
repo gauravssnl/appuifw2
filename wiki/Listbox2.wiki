@@ -1,4 +1,4 @@
-#summary Listbox2 UI control API
+#summary Listbox2 object, native S60 list UI control with enhanced capabilities
 
 === Usage ===
 
