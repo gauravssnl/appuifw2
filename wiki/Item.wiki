@@ -1,0 +1,14 @@
+#summary Item object
+
+Item objects are used by the [Listbox2] and [Menu] classes to represent listbox items and menu items respectively.
+
+=== Usage ===
+
+{{{
+item = Item(title, ...)
+}}}
+
+Creates a new Item instance.
+
+  * *title* is the item title (unicode) and is mandatory,
+  * If specified, additional keyword arguments are converted into object attributes.
