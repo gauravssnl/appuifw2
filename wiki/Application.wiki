@@ -1,0 +1,1 @@
+#summary Application UI control with enhanced capabilities
