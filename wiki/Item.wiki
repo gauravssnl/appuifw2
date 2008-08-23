@@ -29,4 +29,4 @@ See the [Menu] class for explanation of its methods.
 
 The ability to set any object attributes let you easily store your private data in the items. This is shown in the example above.
 
-If used as a [Listbox2] item, the `title` as well as the listbox specific attributes like `subtitle` or `marked` can be set to change the listbox appearance.
+See the [Listbox2] and [Menu] classes for explanation of some specific attributes they may support or require in an Item object.
