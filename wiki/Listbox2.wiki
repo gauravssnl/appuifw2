@@ -209,9 +209,9 @@ Listbox2 class derives from Python `list` type and as such behaves like a `list`
 Every item in a Listbox2 control is represented by an [Item] object.
 This kind of object allows the user to freely specify its attributes (mainly to provide a way to store user data in it). However, Listbox2 gives some attributes a special meaning. They are listed below.
 
-  * *title* always specifies the main title of the item; in a single lined listbox, it is the item text, in a double one, it is the upper item text
-  * *subtitle* is used in double lined lists to represent the lower item text; if it is not specified, an empty string is used
-  * *icon* is used in icon listboxes and it has to be an [Icon] object; it is ignored by non-icon listboxes and required by icon ones
+  * *title* always represents the title of the item; in a single lined listbox it is the item text, in a double one it is the upper item text
+  * *subtitle* is used in double lined listboxes to represent the lower item text; if it is not specified, an empty string is used
+  * *icon* is used in icon listboxes and it has to be an [Icon] object; it is required by icon listboxes and ignored by non-icon ones
   * *marked* represents the state of item marking in a markable listbox; it is ignored by non-markable listboxes
   * *current* is True if the item is currently selected (highlighted) and False otherwise
 
