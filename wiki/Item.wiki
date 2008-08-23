@@ -23,6 +23,7 @@ item = menu.popup()
 if item is not None:
     print item.myfile.read()
 }}}
+See the [Menu] class for explanation of its methods.
 
 === Notes ===
 
