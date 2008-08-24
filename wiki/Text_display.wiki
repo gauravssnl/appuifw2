@@ -1,1 +1,18 @@
 #summary Native S60 text viewer
+
+Text_display represents a native S60 text viewer control. Text_display objects can be used with either appuifw.app.body or appuifw2.app.body properties.
+
+Text_display is based on [Text] class. As such it provides all its methods and properties but limits the user input capabilities. The cursor is not visible and the user cannot change the text. Additionally the up/down arrow keys scroll the text by page or line.
+
+=== Usage ===
+
+{{{
+text = Text_display(text=u'', skinned=False, scrollbar=False, scroll_by_line=False)
+}}}
+
+Creates a new Text instance.
+
+  * *text* is the text to view,
+  * *skinned* if `True`, enables a skinned background, this also changes the text color from dark green to a skin dependent color best suited for the skin in use,
+  * *scrollbar* if `True`, enables a vertical scrollbar (see the [Text] class remarks),
+  * *scroll_by_line* if `True`, the up/down arrow keys scroll the text by line instead of page.
