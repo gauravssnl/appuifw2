@@ -1,6 +1,6 @@
 #summary Native S60 listbox UI control with enhanced capabilities
 
-Listbox2 represents a native S60 listbox control. Listbox2 objects can be used with either appuifw.app.body or appuifw2.app.body property.
+Listbox2 represents a native S60 listbox control. Listbox2 objects can be used with either appuifw.app.body or appuifw2.app.body properties.
 
 As opposite to the [Listbox] and the original appuifw.Listbox, Listbox2 provides methods to dynamically add/replace/remove items and control the listbox view (item displayed at the top). As a `list`-derived class, it features an easy interface to access items. Since items are represented by [Item] objects, user data can be easily associated with the items. The Listbox2 also supports empty lists.
 
