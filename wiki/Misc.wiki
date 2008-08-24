@@ -10,7 +10,6 @@ Returns the ID of the current language.
 
 The known languages are:
 {{{
-# Languages.
 ELangTest # Value used for testing - does not represent a language.
 ELangEnglish # UK English.
 ELangFrench # French.
@@ -119,7 +118,7 @@ ELangOther # Use of this value is deprecated.
 get_skin_color(color_id)
 }}}
 
-Returns a `(r, g, b)` tuple representing a color defined by the currently selected skin. The known color IDs are:
+Returns an `(r, g, b)` tuple representing a color defined by the currently selected skin. The known color IDs are:
 {{{
-EMainAreaTextColor
+EMainAreaTextColor # used by skinned Text UI control
 }}}
