@@ -13,7 +13,7 @@ text = Text(text=u'', move_callback=None, edit_callback=None, skinned=False,
 
 Creates a new Text instance.
 
-  * *text* are the initial contents of the editor, the cursor remains at the 0 position,
+  * *text* is the initial contents of the editor, the cursor remains at the 0 position,
   * *move_callback* may be a callable which will be called every time the user moves the cursor (moves caused by edit operations are excluded),
   * *edit_callback* may be a callable accepting two arguments, it will be called every time the contents of the editor change, the arguments will be the position of the change and number of chars inserted (positive) or removed (negative),
   * *skinned* if `True`, enables a skinned background, this also changes the default text color from dark green to a skin dependent color best suited for the skin in use,
@@ -23,7 +23,9 @@ Creates a new Text instance.
   * *indicator* if `False`, disables the input mode indicator in the navi pane; this enables the use of navi pane for other purposes (see [Application]),
   * *fixed_case* if `True`, forbids changing of the input case.
 
-=== Added methods ===
+=== Methods ===
+
+Unchanged methods are *NOT* documented. See !PyS60 documentation for more information.
 
 {{{
 insert(pos, text)
@@ -222,7 +224,9 @@ paste()
 
 Pasts the text from the clipboard (if any) at the current cursor position.
 
-=== Added properties ===
+=== Properties ===
+
+Unchanged properties are *NOT* documented. See !PyS60 documentation for more information.
 
 {{{
 read_only
