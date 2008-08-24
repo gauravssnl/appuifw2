@@ -1,6 +1,6 @@
 #summary Native S60 listbox UI control
 
-Listbox represents a native S60 listbox control. Listbox objects can be used with either appuifw.app.body or appuifw2.app.body property.
+Listbox represents a native S60 listbox control. Listbox objects can be used with either appuifw.app.body or appuifw2.app.body properties.
 
 The interface of the Listbox object is exactly the same as of the appuifw.Listbox. Therefore it can be used as a direct replacement and you should refer to the !PyS60 documentation for the usage help.
 
