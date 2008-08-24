@@ -28,17 +28,23 @@ begin_update()
 
 If a lot of items have to be added/updated/deleted and the listbox is currently visible, this method should be used to suppress multiple view updates. After all items have been processed, `end_update` should be called.
 
+----
+
 {{{
 end_update()
 }}}
 
 Finishes processing started with `begin_update` and updates the listbox view.
 
+----
+
 {{{
 clear()
 }}}
 
 Removes all items.
+
+----
 
 {{{
 append(item)
@@ -48,6 +54,8 @@ Appends an item to the end of the list.
 
   * *item* must be an [Item] object.
 
+----
+
 {{{
 extend(items)
 }}}
@@ -55,6 +63,8 @@ extend(items)
 Appends many items to the end of the list.
 
   * *itmes* must be a sequence of [Item] objects.
+
+----
 
 {{{
 insert(position, item)
@@ -65,6 +75,8 @@ Inserts an item at given position.
   * *position* is the item position, 0 will insert the item at the top.
   * *item* must be an [Item] object.
 
+----
+
 {{{
 remove(item)
 }}}
@@ -72,6 +84,8 @@ remove(item)
 Removes given item from the listbox. If the item isn't found, a `ValueError` exception is raised.
 
   * *item* is an [Item] object to remove.
+
+----
 
 {{{
 pop([position])
@@ -81,6 +95,8 @@ Pops an item from the listbox and returns it. If position isn't specified, pops 
 
   * *position* is an optional item position, last item is popped if omitted; square brackets indicate that the argument is optional.
 
+----
+
 {{{
 sort([cmpfunc])
 }}}
@@ -89,17 +105,23 @@ Sorts the items in the listbox. If the compare function isn't provided, sorts al
 
   * *cmpfunc* in an optional compare function receiving two [Item] objects and returning an integer; for more information refer to Python list.sort function documentation.
 
+----
+
 {{{
 reverse()
 }}}
 
 Reverses the order of items in the listbox.
 
+----
+
 {{{
 current()
 }}}
 
 Returns the index of currently selected item.
+
+----
 
 {{{
 set_current(position)
@@ -109,17 +131,23 @@ Selects an item.
 
   * *position* is an index of the item to select.
 
+----
+
 {{{
 current_item()
 }}}
 
 Returns the currently selected [Item] object. This is equivalent to `listbox[listbox.current()]`.
 
+----
+
 {{{
 top()
 }}}
 
 Returns an index of the item visible at the top of the screen.
+
+----
 
 {{{
 set_top(position)
@@ -129,11 +157,15 @@ Moves the list view so that the item at given position is visible at the top of 
 
   * *position* is the position of the item.
 
+----
+
 {{{
 top_item()
 }}}
 
 Returns the [Item] object of the item visible at the top of the screen.
+
+----
 
 {{{
 bottom()
@@ -141,11 +173,15 @@ bottom()
 
 Returns an index of the item visible at the bottom of the screen.
 
+----
+
 {{{
 bottom_item()
 }}}
 
 Returns the [Item] object of the item visible at the bottom of the screen.
+
+----
 
 {{{
 make_visible(position)
@@ -154,6 +190,8 @@ make_visible(position)
 Moves the list view so that the item at given position is visible.
 
   * *position* is the position of the item.
+
+----
 
 {{{
 bind(event_code, callback)
@@ -164,11 +202,15 @@ Binds a callable to a key. The callable will be called when the key is pressed. 
   * *event_code* is the key code, you can use codes defined in `key_codes` module,
   * *callback* is a callable to be called when the key is pressed.
 
+----
+
 {{{
 marked()
 }}}
 
 Returns a list of indexes of currently marked items.
+
+----
 
 {{{
 marked_items()
@@ -176,11 +218,15 @@ marked_items()
 
 Returns a list of currently marked [Item] objects.
 
+----
+
 {{{
 clear_marked()
 }}}
 
 Unmarks all marked items.
+
+----
 
 {{{
 empty_list_text()
@@ -188,11 +234,15 @@ empty_list_text()
 
 Returns the text displayed in the center of the screen when the list is empty.
 
+----
+
 {{{
 set_empty_list_text(text)
 }}}
 
 Sets a new text displayed in the center of the screen when the list is empty.
+
+----
 
 {{{
 highlight_rect()
