@@ -62,6 +62,6 @@ Enables (`True`) or disables (`False`) the display of the right arrow in the nav
 view
 }}}
 
-Contains the current application view object (an instance of [View] class or a class derived from it) or `None` (if no views are set). Can be set to a new view object to overlap the current one. When a view is closed, this property automatically regains the previous value.
+Contains the current application view object (an instance of the [View] class or a class derived from it) or `None` (if no views are set). Can be set to a new view object to overlap the current one. When a view is later closed, this property automatically regains the previous value.
 
 See the [View] class description for more information about application views.
