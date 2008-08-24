@@ -1,16 +1,16 @@
-#summary Application UI control with enhanced capabilities
+#summary Application object with enhanced capabilities
 
-The Application object is based on the `appuifw.Application` object and provides all its methods and properties. It is also a singleton with its only instance available in `appuifw2.app` variable (similarly to `appuifw.app` variable).
+There is only one instance of the Application class. It is always available in the `app` attribute of the `appuifw2` module. It provides all methods and properties of the same class from the `appuifw` module.
 
-This means that you can use the `appuifw2.app` object in exactly the same way as you used the `appuifw.app` one. Look into the !PyS60 documentation for explanation of inherited functions.
+This means that you can use the `appuifw2.app` object in exactly the same way as you used the `appuifw.app` one. Look into the !PyS60 documentation for explanation of inherited functionalities.
 
-Additional and changed properties are listed below.
+Additional and changed properties are explained below.
 
 {{{
 menu
 }}}
 
-Already known from appuifw module. In appuifw2 it can also be set to a [Menu] object or `None` (to disable the menu, same as `[]`).
+Already known from `appuifw` module. In `appuifw2` it can also be set to a [Menu] object or `None` (the latter to disable the menu, same as `[]`).
 
 {{{
 init_menu_handler
