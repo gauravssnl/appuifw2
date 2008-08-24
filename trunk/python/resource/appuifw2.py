@@ -25,30 +25,6 @@ def schedule(target, *args, **kwargs):
     e32.ao_sleep(0, lambda: target(*args, **kwargs))
 
 
-# event class with threading.Event interface based on e32.Ao_lock
-class Event(object):
-    def __init__(self):
-        self.lock = e32.Ao_lock()
-        self.clear()
-
-    def wait(self):
-        if not self.isSet():
-            self.lock.wait()
-
-    def set(self):
-        self.lock.signal()
-        self.signaled = True
-
-    def clear(self):
-        self.signaled = False
-
-    def isSet(self):
-        return self.signaled
-
-    def __repr__(self):
-        return '<%s; set=%s>' % (object.__repr__(self)[1:-1], self.isSet())
-
-
 # common item class used in Listbox2 and Menu
 class Item(object):
     def __init__(self, title, **kwargs):
@@ -91,7 +67,7 @@ class Item(object):
         return '%s(%s)' % (self.__class__.__name__, repr(self.title))
 
 
-# Listbox2 control
+# Listbox2 UI control
 class Listbox2(list):
     def __init__(self, items=[], select_callback=None, double=False, icons=False, markable=False):
         if double:
@@ -122,7 +98,7 @@ class Listbox2(list):
 
     def __ui_insert(self, pos, item):
         if self.__double:
-            s = u'%s\t%s' % (item.title, getattr(item, 'text', u''))
+            s = u'%s\t%s' % (item.title, getattr(item, 'subtitle', u''))
         else:
             s = item.title
         if self.__icons:
@@ -142,7 +118,7 @@ class Listbox2(list):
                     _appuifw2.Listbox2_select(api, i,
                         _appuifw2.Listbox2_select(api, i-1))
                 _appuifw2.Listbox2_select(api, pos,
-                    getattr(item, 'selected', False))
+                    getattr(item, 'marked', False))
         finally:
             self.end_update()
 
@@ -170,7 +146,7 @@ class Listbox2(list):
             return
         if name == 'current':
             item.__dict__[name] = (self.current() == pos)
-        elif name == 'selected':
+        elif name == 'marked':
             item.__dict__[name] = _appuifw2.Listbox2_select(self._uicontrolapi, pos)
 
     def handle_item_setattr(self, item, name):
@@ -183,13 +159,13 @@ class Listbox2(list):
                 self.set_current(pos)
             else:
                 item.__dict__[name] = (self.current() == pos)
-        elif name == 'selected':
+        elif name == 'marked':
             self.begin_update()
             try:
                 _appuifw2.Listbox2_select(self._uicontrolapi, pos, item.__dict__[name])
             finally:
                 self.end_update()
-        elif name in ('title', 'text', 'icon'):
+        elif name in ('title', 'subtitle', 'icon'):
             self.__setitem__(pos, item)
 
     def begin_update(self):
@@ -345,11 +321,14 @@ class Listbox2(list):
     def bind(self, event_code, callback):
         _appuifw2.bind(self._uicontrolapi, event_code, callback)
         
-    def selected(self):
+    def marked(self):
         return _appuifw2.Listbox2_selection(self._uicontrolapi)
         
-    def selected_items(self):
+    def marked_items(self):
         return [self[x] for x in self.selected()]
+
+    def clear_marked(self):
+        _appuifw2.Listbox2_clear_selection(self._uicontrolapi)
 
     def empty_list_text(self):
         return _appuifw2.Listbox2_empty_text(self._uicontrolapi)
@@ -418,8 +397,8 @@ class Listbox2(list):
         return '<%s instance at 0x%08X; %d items>' % (self.__class__.__name__, id(self), len(self))
 
 
-# emulation of appuifw.Listbox using _appuifw2;
-# the only difference is the scrollbar
+# emulation of appuifw.Listbox using _appuifw2.Listbox2_xxx functions;
+# the only difference is the scrollbar in this implementation
 class Listbox(object):
     def __init__(self, items, select_callback=None):
         # check items and extract the mode
@@ -497,7 +476,8 @@ class Listbox(object):
         position = property(__get_position)
 
 
-# enhanced appuifw.Text, provides the same interface plus more features
+# enhanced appuifw.Text UI control,
+# provides the same interface with more features
 class Text(object):
     def __init__(self, text=u'', move_callback=None, edit_callback=None,
             skinned=False, scrollbar=False, word_wrap=True, t9=True,
@@ -655,6 +635,8 @@ class Text(object):
     del name
 
 
+# Text_display UI control, shows text in read-only mode without
+# cursor and handles scrolling
 class Text_display(Text):
     def __init__(self, text=u'', skinned=False, scrollbar=False,
             scroll_by_line=False):
@@ -738,7 +720,7 @@ EFlagFindPane = 0x1000
 # NOTICE! Flag value 0x80000000 is reserved for internal use by FEP.
 
 
-# menu class
+# Menu class, easy handling of menus
 class Menu(list):
     def __init__(self, title=u'', items=[]):
         if title:
@@ -835,6 +817,7 @@ class Menu(list):
         return Menu(self.title, items)
 
 
+# View class, easy handling of application views
 class View(object):
     all_attributes = ('body', 'exit_key_handler', 'menu', 'screen', 'title',
         'init_menu_handler', 'menu_key_handler', 'menu_key_text', 'exit_key_text',
@@ -846,8 +829,8 @@ class View(object):
         self.__menu = None
         self.__screen = 'normal'
         self.__title = unicode(self.__class__.__name__)
-        self.__init_menu_handler = None
-        self.__menu_key_handler = None
+        self.__init_menu_handler = self.init_menu
+        self.__menu_key_handler = self.handle_menu_key
         if app.view is not None:
             self.__menu_key_text = app._Application__views[0].menu_key_text
             self.__exit_key_text = app._Application__views[0].exit_key_text
@@ -857,35 +840,83 @@ class View(object):
         self.__navi_text = u''
         self.__left_navi_arrow = False
         self.__right_navi_arrow = False
+        self.__tabs = ([], None)
+        self.__tab_index = 0
         self.__lock = None
 
-    def open(self):
+    def shown(self):
+        # called when this view is shown
+        pass
+        
+    def hidden(self):
+        # called when other view is shown over this view
         pass
 
     def close(self):
+        # closes the view and removes it from the app;
+        # this is the default Exit key handler
         if app.view == self:
             app._Application__pop_view()
         if self.__lock is not None:
             self.__lock.signal()
 
-    def wait(self):
+    def wait_for_close(self):
+        # blocks until self.close() is called
+        if self not in app._Application__views:
+            raise AssertionError('View not opened')
         self.__lock = e32.Ao_lock()
         self.__lock.wait()
         self.__lock = None
 
+    def init_menu(self):
+        # called shortly before the menu is shown;
+        # may use self.menu to modify the menu
+        pass
+        
+    def handle_menu_key(self):
+        # default Menu key handler; use only if the view doesn't have
+        # a menu (self.menu is None), if it has a dynamic menu, override
+        # self.init_menu() instead
+        pass
+
+    def set_tabs(self, tab_texts, callback):
+        if app.view is self:
+            app.set_tabs(tab_texts, callback)
+        self.__tabs = (tab_texts, callback)
+        self.__tab_index = 0
+
+    def activate_tab(self, index):
+        if app.view is self:
+            app.activate_tab(index)
+        self.__tab_index = index
+
+    # create the properties
     for name in all_attributes:
         exec 'def __get_%s(self):\n  return self._View__%s\n' % (name, name)
-        exec 'def __set_%s(self, value):\n  self._View__%s = value\n  if app.view == self:\n    app.%s = value\n' % \
+        exec 'def __set_%s(self, value):\n  self._View__%s = value\n  if app.view is self:\n    app.%s = value\n' % \
             (name, name, name)
         exec '%s = property(__get_%s, __set_%s)' % (name, name, name)
+    del name
 
 
-# the only instance of this class will be the 'app'
+# Application class, the only instance of this class will be the 'app'
 class Application(object):
+    # original app
+    from appuifw import app as __app
+    
+    # inherit methods (properties are implemented in getattr/setattr)
+    for name in dir(__app):
+        exec '%s = _Application__app.%s' % (name, name)
+    del name
+
     def __init__(self):
+        # app is the only instance of this class; during the instantiation app
+        # is still appuifw.app so we just have to check its type
         global app
         if isinstance(app, self.__class__):
             raise TypeError('%s already instantiated' % self.__class__.__name__)
+        self.__tabs = ([], None)
+        self.__tab_index = 0
         self.__menu = None
         self.__menu_id = 0
         self.__menu_key_handler = None
@@ -894,10 +925,6 @@ class Application(object):
         self.__left_navi_arrow = False
         self.__right_navi_arrow = False
         self.__navi = None
-        from appuifw import app
-        self.__app = app
-        for attr in dir(app):
-            setattr(self, attr, getattr(app, attr))
         # creates a menu init callback and stores a reference to it
         # (callback is removed if this reference dies)
         # this call also activates the flags for the menu which
@@ -925,6 +952,15 @@ class Application(object):
         else:
             self.__refresh_pending = True
         
+    def set_tabs(self, tab_texts, callback):
+        self.__app.set_tabs(tab_texts, callback)
+        self.__tabs = (tab_texts, callback)
+        self.__tab_index = 0
+
+    def activate_tab(self, index):
+        self.__app.activate_tab(index)
+        self.__tab_index = index
+
     def __get_body(self):
         return self.__app.body
         
@@ -1054,21 +1090,34 @@ class Application(object):
         
     def __set_view(self, value):
         if not isinstance(value, View):
-            raise TypeError('expected a view')
+            raise TypeError('expected a View object')
         if not self.__views:
-            # create a view for app state
+            # no views yet, store the app state in a new view
             appview = View()
             for name in View.all_attributes:
                 setattr(appview, name, getattr(self, name))
-            self.__views.append(appview)
+            appview.set_tabs(*self.__tabs)
+            appview.activate_tab(self.__tab_index)
+            try:
+                self.__views.append(appview)
+                appview.shown()
+            except:
+                del self.__views[0]
+                raise
         try:
-            value.open()
+            # show the new view
+            self.__views.append(value)
+            self.__sync_view()
+            # hide the old view
+            self.__views[-2].hidden()
+            value.shown()
         except:
+            # error, remove the new view
+            del self.__views[-1]
             if len(self.__views) == 1:
+                # remove the app view
                 del self.__views[0]
             raise
-        self.__views.append(value)
-        self.__sync_view()
 
     def __pop_view(self):
         try:
@@ -1086,7 +1135,10 @@ class Application(object):
             return
         for name in View.all_attributes:
             setattr(self, name, getattr(view, name))
+        self.set_tabs(*view._View__tabs)
+        self.activate_tab(view._View__tab_index)
 
+    # original properties
     body = property(__get_body, __set_body)
     exit_key_handler = property(__get_exit_key_handler, __set_exit_key_handler)
     menu = property(__get_menu, __set_menu)
@@ -1095,15 +1147,14 @@ class Application(object):
     focus = property(__get_focus, __set_focus)
     orientation = property(__get_orientation, __set_orientation)
     
+    # new properties
     init_menu_handler = property(__get_init_menu_handler, __set_init_menu_handler)
     menu_key_handler = property(__get_menu_key_handler, __set_menu_key_handler)
     menu_key_text = property(__get_menu_key_text, __set_menu_key_text)
     exit_key_text = property(__get_exit_key_text, __set_exit_key_text)
-
     navi_text = property(__get_navi_text, __set_navi_text)
     left_navi_arrow = property(__get_left_navi_arrow, __set_left_navi_arrow)
     right_navi_arrow = property(__get_right_navi_arrow, __set_right_navi_arrow)
-    
     view = property(__get_view, __set_view)
 
 app = Application()
