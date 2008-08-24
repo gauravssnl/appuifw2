@@ -16,3 +16,7 @@ Creates a new Text_display instance.
   * *skinned* if `True`, enables a skinned background, this also changes the text color from dark green to a skin dependent color best suited for the skin in use,
   * *scrollbar* if `True`, enables a vertical scrollbar (see the [Text] class remarks),
   * *scroll_by_line* if `True`, the up/down arrow keys scroll the text by line instead of page.
+
+=== Remarks ===
+
+If you need special formatting, don't use the `text` argument but add the text after creation of the control using the methods and properties provided by the [Text] class. Remember to set the cursor position to 0 before displaying the control on the screen.
