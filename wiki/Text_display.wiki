@@ -10,7 +10,7 @@ Text_display is based on [Text] class. As such it provides all its methods and p
 text = Text_display(text=u'', skinned=False, scrollbar=False, scroll_by_line=False)
 }}}
 
-Creates a new Text instance.
+Creates a new Text_display instance.
 
   * *text* is the text to view,
   * *skinned* if `True`, enables a skinned background, this also changes the text color from dark green to a skin dependent color best suited for the skin in use,
