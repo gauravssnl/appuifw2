@@ -4,13 +4,15 @@ There is only one instance of the Application class. It is always available in t
 
 This means that you can use the `appuifw2.app` object in exactly the same way as you used the `appuifw.app` one. Look into the !PyS60 documentation for explanation of inherited functionalities.
 
-Additional and changed properties are explained below.
+=== Additional and changed properties ===
 
 {{{
 menu
 }}}
 
 Already known from `appuifw` module. In `appuifw2` it can also be set to a [Menu] object or `None` (the latter to disable the menu, same as `[]`).
+
+----
 
 {{{
 init_menu_handler
@@ -20,6 +22,8 @@ If set to a callable, it is called shortly before the Options menu is opened. Th
 
 If this property is not used, it is set to `None`.
 
+----
+
 {{{
 menu_key_handler
 }}}
@@ -28,11 +32,15 @@ If set to a callable, it is called when the Menu key is pressed. Use this proper
 
 If this property is not used, it is set to `None`.
 
+----
+
 {{{
 menu_key_text
 }}}
 
 Contains the text (unicode) shown above the left command key (defaults to `u'Options'` in English locale).
+
+----
 
 {{{
 exit_key_text
@@ -40,11 +48,15 @@ exit_key_text
 
 Contains the text (unicode) shown above the right command key (defaults to `u'Exit'` in English locale).
 
+----
+
 {{{
 navi_text
 }}}
 
 Contains the text (unicode) shown in the navi pane (where the tabs or editor indicators are normally shown). The text is only visible when the area is not occupied by other controls.
+
+----
 
 {{{
 left_navi_arrow
@@ -52,11 +64,15 @@ left_navi_arrow
 
 Enables (`True`) or disables (`False`) the display of the left arrow in the navi pane (where the tabs or editor indicators are normally shown). The arrow is only visible when the area is not occupied by other controls. May be used together with `navi_text` property.
 
+----
+
 {{{
 right_navi_arrow
 }}}
 
 Enables (`True`) or disables (`False`) the display of the right arrow in the navi pane (where the tabs or editor indicators are normally shown). The arrow is only visible when the area is not occupied by other controls. May be used together with `navi_text` property.
+
+----
 
 {{{
 view
