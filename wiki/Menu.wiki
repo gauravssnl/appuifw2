@@ -8,7 +8,7 @@ The Menu class tries to fix this.
 
 The class is based on Python `list` type and as such provides all its methods to append/insert/remove the items. There's no point in explaining them here, refer to the Python documentation for more information.
 
-The items in a menu are represented by [Item] objects. This lets you easily save your user data in them.
+The items in a menu are represented by [Item] objects. See the *Items* section below for more information.
 
 === Usage ===
 
