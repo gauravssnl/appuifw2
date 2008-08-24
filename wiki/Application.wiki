@@ -1,3 +1,3 @@
 #summary Application UI control with enhanced capabilities
 
-The Application object is based on the Application object
+The Application object is based on the appuifw.Application object.
