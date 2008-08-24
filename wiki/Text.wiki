@@ -31,7 +31,7 @@ Unchanged methods are *NOT* documented. See !PyS60 documentation for more inform
 insert(pos, text)
 }}}
 
-Inserts the text at given position. This is different than moving the cursor and using the `add` method in that it doesn't change the cursor position (relative to the text).
+Inserts the text at given position. This is different than moving the cursor and using the `add` method in that it doesn't change the cursor and display position.
 
 {{{
 apply(pos=0, length=-1)
