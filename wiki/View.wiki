@@ -1,5 +1,5 @@
 #summary Provides an easy way to manage application views
 
-Every more advanced !PyS60 application (or any application for that matter) needs more than one view. You pretty fast get into situation where you have to change the contents of the screen and you know you will have to restore them later. Normally in such case you have to back up all `appuifw.app` attributes, replace them with new values and restore the backed up values later. This can be done in a lot of different ways, some better, some worse, but you will always be doing the job the framework should do for you. Appuifw2's views try to change this.
+Every more advanced !PyS60 application (or any application for that matter) needs more than one view. You pretty fast get into situation where you have to change the contents of the screen and you know you will have to restore them later. Normally in such case you have to back up all `appuifw.app` attributes, replace them with new values and restore the backed up values later. Appuifw2's views try to help you with this.
 
-A view is an object of a View class or a class derived from it. It has most of the attributes the `appuifw2.app` object provides. The difference is that you may have as many view objects as you wish and the framework will take care of switching between them.
+A view in appuifw2 is an object of a View class or a class derived from it. It has most of the attributes the `appuifw2.app` object provides. The difference is that you may have as many view objects as you wish and the framework will take care of switching between them.
