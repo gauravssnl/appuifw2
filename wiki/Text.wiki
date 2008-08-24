@@ -7,7 +7,8 @@ The Text class accepts the same parameters and provides the same methods as the 
 === Usage ===
 
 {{{
-text = Text(text=u'', move_callback=None, edit_callback=None, skinned=False, scrollbar=False, word_wrap=True, t9=True, indicator=True, fixed_case=False)
+text = Text(text=u'', move_callback=None, edit_callback=None, skinned=False,
+    scrollbar=False, word_wrap=True, t9=True, indicator=True, fixed_case=False)
 }}}
 
 Creates a new Text instance.
