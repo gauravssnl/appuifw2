@@ -2,7 +2,7 @@
 
 Text_display represents a native S60 text viewer control. Text_display objects can be used with either appuifw.app.body or appuifw2.app.body properties.
 
-Text_display is based on [Text] class. As such it provides all its methods and properties but limits the user input capabilities. The cursor is not visible and the user cannot change the text. Additionally the up/down arrow keys used to scroll the text.
+Text_display is based on [Text] class. As such it provides all its methods and properties but limits the user input capabilities. The cursor and input mode indicators are not visible and the user cannot change the text. Additionally, the up/down arrow keys are used to scroll the text.
 
 === Usage ===
 
