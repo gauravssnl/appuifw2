@@ -1120,6 +1120,13 @@ PyObject* Text2_set_selection(PyObject* /*self*/, PyObject *args)
 	if ((o = PyCObject_AsText2(co)) == NULL)
 		return NULL;
 	
+	if (anchorpos < 0)
+		anchorpos = o->control->Len() - pos;
+
+	if (pos < 0 || pos >= o->control->Len() ||
+			anchorpos < 0 || anchorpos >= o->control->Len())
+		return SPyErr_SetFromSymbianOSErr(KErrArgument);
+
 	TRAP(error,
 		o->control->SetSelectionL(pos, anchorpos);
 	)
@@ -1387,6 +1394,9 @@ PyObject* Text2_set_undo_buffer(PyObject* /*self*/, PyObject *args)
 		
 	if ((o = PyCObject_AsText2(co)) == NULL)
 		return NULL;
+
+	if (anchorpos < 0)
+		anchorpos = o->control->Len() - pos;
 
 	if (pos < 0 || pos >= o->control->Len() ||
 			anchorpos < 0 || anchorpos >= o->control->Len())

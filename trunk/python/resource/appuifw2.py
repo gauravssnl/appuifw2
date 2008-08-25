@@ -481,8 +481,7 @@ class Listbox(object):
 class Text(object):
     def __init__(self, text=u'', move_callback=None, edit_callback=None,
             skinned=False, scrollbar=False, word_wrap=True, t9=True,
-            indicator=True, lr_moving=True, fixed_case=False, flags=0x00009108,
-            editor_flags=0):
+            indicator=True, fixed_case=False, flags=0x00009108, editor_flags=0):
         # default flags are:
         # EAllowUndo|EAlwaysShowSelection|EInclusiveSizeFixed|ENoAutoSelection
         # flags are defined in eikedwin.h
@@ -493,17 +492,15 @@ class Text(object):
         if text:
             self.set(text)
             self.set_pos(0)
-        # editor flags are defined in eikon.hrh
         if not t9:
-            editor_flags |= EFlagNoT9
+            editor_flags |= 0x002 # EFlagNoT9
         if not indicator:
-            editor_flags |= EFlagNoEditIndicators
-        if not lr_moving:
-            editor_flags |= EFlagNoLRNavigation
+            editor_flags |= 0x004 # EFlagNoEditIndicators
         if fixed_case:
-            editor_flags |= EFlagFixedCase
+            editor_flags |= 0x001 # EFlagFixedCase
+        # editor flags are defined in eikon.hrh
         if editor_flags:
-            self.set_editor_flags(editor_flags)
+            _appuifw2.Text2_set_editor_flags(self._uicontrolapi, editor_flags)
 
     def add(self, text):
         _appuifw2.Text2_add_text(self._uicontrolapi, text)
@@ -577,14 +574,14 @@ class Text(object):
         j = max(pos, anchor)
         return (pos, anchor, _appuifw2.Text2_get_text(self._uicontrolapi, i, j-i))
 
+    def set_selection(self, pos, anchor):
+        _appuifw2.Text2_set_selection(self._uicontrolapi, pos, anchor)
+
     def set_word_wrap(self, word_wrap):
         _appuifw2.Text2_set_word_wrap(self._uicontrolapi, word_wrap)
     
     def set_limit(self, limit):
         _appuifw2.Text2_set_limit(self._uicontrolapi, limit)
-
-    def set_allow_undo(self, allow):
-        _appuifw2.Text2_set_allow_undo(self._uicontrolapi, allow)
 
     def get_word_info(self, pos=-1):
         return _appuifw2.Text2_get_word_info(self._uicontrolapi, pos)
@@ -600,9 +597,6 @@ class Text(object):
 
     def set_allowed_input_modes(self, modes):
         _appuifw2.Text2_set_allowed_input_modes(self._uicontrolapi, modes)
-
-    def set_editor_flags(self, flags):
-        _appuifw2.Text2_set_editor_flags(self._uicontrolapi, flags)
 
     def set_undo_buffer(self, pos=0, length=-1):
         return _appuifw2.Text2_set_undo_buffer(self._uicontrolapi, pos, length)
@@ -641,9 +635,11 @@ class Text_display(Text):
     def __init__(self, text=u'', skinned=False, scrollbar=False,
             scroll_by_line=False):
         Text.__init__(self, text, skinned=skinned, scrollbar=scrollbar,
-            indicator=False, lr_moving=False, flags=0x0400B908)
-        # flags are same as defined in Text plus:
+            indicator=False, flags=0x0400B908, editor_flags=0x008)
+        # flags are same as defined in Text, plus:
         # EDisplayOnly|EReadOnly|EAvkonDisableCursor
+        # editor flags are:
+        # EFlagNoLRNavigation
         from key_codes import EKeyUpArrow, EKeyDownArrow
         if scroll_by_line:
             self.bind(EKeyUpArrow, lambda: self.move_display(EFLineUp))
@@ -689,35 +685,6 @@ EFPageUp = 5
 EFPageDown = 6
 EFLineBeg = 7
 EFLineEnd = 8
-
-
-# flags for Text.set_flags
-EFlagDefault = 0x000
-EFlagFixedCase = 0x001 # case changes are not allowed
-EFlagNoT9 = 0x002 # predictive text entry is not allowed
-EFlagNoEditIndicators = 0x004 # editor indicators are not shown
-EFlagNoLRNavigation = 0x008 # the cursor cannot be moved
-#EFlagSupressShiftMenu = 0x010 # edit menu cannot be opened from edit key
-#EFlagEnableScrollBars = 0x020
-# The character next to the cursor (if exists) is replaced by a new entered character.
-# This flag has effect only in latin multitap input.
-EFlagMTAutoOverwrite = 0x040
-# The number input mode uses same special character table character set
-# as alpha input mode if the flag is set. The flag overrides
-# number mode keymapping if they are in conflict. This flag can be used
-# also with number input mode only editors.
-EFlagUseSCTNumericCharmap = 0x080
-# Input language is changed to English locally in the editor.
-EFlagLatinInputModesOnly = 0x100
-# Chinese find mode input.
-EFlagForceTransparentFepModes = 0x200
-# Line feed character is added with scroll down key event 
-# if the cursor is at the end of the buffer. The functionality is 
-# available only in certain variants.
-EFlagAllowEntersWithScrollDown = 0x400
-EFlagEnablePictographInput = 0x800
-EFlagFindPane = 0x1000
-# NOTICE! Flag value 0x80000000 is reserved for internal use by FEP.
 
 
 # Menu class, easy handling of menus
@@ -855,8 +822,7 @@ class View(object):
     def close(self):
         # closes the view and removes it from the app;
         # this is the default Exit key handler
-        if app.view == self:
-            app._Application__pop_view()
+        app._Application__pop_view(self)
         if self.__lock is not None:
             self.__lock.signal()
 
@@ -1119,14 +1085,28 @@ class Application(object):
                 del self.__views[0]
             raise
 
-    def __pop_view(self):
+    def __pop_view(self, view=None):
+        if view is None:
+            i = -1
+        else:
+            try:
+                i = self.__views.index(view)
+            except ValueError:
+                return
+        curr = self.view
         try:
-            self.__views.pop()
+            self.__views.pop(i)
         except IndexError:
             return
-        self.__sync_view()
-        if len(self.__views) == 1:
-            del self.__views[0]
+        try:
+            if self.view != curr:
+                self.view.shown()
+                self.__sync_view()
+                curr.hidden()
+        finally:
+            if len(self.__views) == 1:
+                # remove the app view
+                del self.__views[0]
 
     def __sync_view(self):
         try:
@@ -1160,7 +1140,11 @@ class Application(object):
 app = Application()
 
 
-EMainAreaTextColor = _appuifw2.get_skin_color(0x10005A26, 0x3300, 5)
+def get_skin_color(color_id):
+    return _appuifw2.get_skin_color(*color_id)
+
+# Color IDs.
+EMainAreaTextColor = (0x10005A26, 0x3300, 5)
 
 
 get_language = _appuifw2.get_language
@@ -1267,4 +1251,4 @@ ELangWelsh = 97 # Welsh.
 ELangZulu = 98 # Zulu.
 ELangOther = 99 # Use of this value is deprecated.
 ELangNone = 0xFFFF # Indicates the final language in the language downgrade path.
-LangMaximum = ELangNone # This must always be equal to the last (largest) value.
+ELangMaximum = ELangNone # This must always be equal to the last (largest) value.
