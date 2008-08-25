@@ -21,50 +21,40 @@ import appuifw2
 
 class Main(appuifw2.View):
     def __init__(self):
+        # call the superclass __init__()
         appuifw2.View.__init__(self)
         # initialize the properties
         self.title = u'Main view'
 }}}
 
-The initialization creates the view and sets its title to "Main view".
+The init method sets the view title to "Main view".
 
-After the class is defined, we can create the view.
+After the class is defined, we can create the view object.
 
 {{{
 myview = Main()
 }}}
 
-The last thing to do is to make the view visible on the screen.
+To make the view visible on the screen, we pass it to the `view` property of the [Application] object.
 
 {{{
 appuifw2.app.view = myview
 }}}
 
-To make the script wait until the view is closed, we can do the following.
+To block the script until the view is closed, we can use the `wait_for_close` method.
 
 {{{
 myview.wait_for_close()
-}}}
-
-In a standalone application we also want the view to quit Python when the view is closed. This can be done by adding a method.
-
-{{{
-    def close(self):
-        appuifw2.View.close(self)
-        appuifw2.app.set_quit()
 }}}
 
 === Methods ===
 
 {{{
 set_tabs(tab_texts, callback=None)
-}}}
-
-----
-
-{{{
 activate_tab(index)
 }}}
+
+Same as respective methods of the [Application] object but private to the view.
 
 ----
 
@@ -72,11 +62,17 @@ activate_tab(index)
 close()
 }}}
 
+Closes the view and removes it from the application views stack. This will reveal the previous view or restore the original values of [Application] object properties.
+
+This method is the default `exit_key_handler` property value which means that the view will be closed when the Exit key is pressed. Set the `exit_key_handler` property to `None` or other callable to disable this feature.
+
 ----
 
 {{{
 wait_for_close()
 }}}
+
+Sleeps until the `close()` method if called.
 
 ----
 
@@ -84,11 +80,19 @@ wait_for_close()
 shown()
 }}}
 
+Called by the framework when the view appears on the screen. This happens when the view is passed to the `appuifw2.app.view` property or when it reappears after being overlapped by another view.
+
+The default implementation does nothing.
+
 ----
 
 {{{
 hidden()
 }}}
+
+Called by the framework when the view disappears from the screen. This happens when  the view is overlapped by another view or when it is being closed.
+
+The default implementation does nothing.
 
 ----
 
@@ -96,11 +100,19 @@ hidden()
 init_menu()
 }}}
 
+The default `init_menu_handler` property value.
+
+The default implementation does nothing.
+
 ----
 
 {{{
 handle_menu_key()
 }}}
+
+The default `menu_key_handler` property value.
+
+The default implementation does nothing.
 
 === Properties ===
 
@@ -118,3 +130,5 @@ navi_text
 left_navi_arrow
 right_navi_arrow
 }}}
+
+Same as respective properties of the [Application] object but private to the view.
