@@ -12,11 +12,47 @@ When the first view is set, the current application state is saved. It is then r
 
 === Usage ===
 
+You can instantiate the View class directly but usually you will want to subclass it. This will allow you to initialize the view's properties in its `__init__` method and use the object as a container for callbacks and other view specific functions (and variables).
+
+Example subclass could look like this.
+
 {{{
-view = View()
+import appuifw2
+
+class Main(appuifw2.View):
+    def __init__(self):
+        appuifw2.View.__init__(self)
+        # initialize the properties
+        self.title = u'Main view'
 }}}
 
-Creates a new View instance.
+The initialization creates the view and sets its title to "Main view".
+
+After the class is defined, we can create the view.
+
+{{{
+myview = Main()
+}}}
+
+The last thing to do is to make the view visible on the screen.
+
+{{{
+appuifw2.app.view = myview
+}}}
+
+To make the script wait until the view is closed, we can do the following.
+
+{{{
+myview.wait_for_close()
+}}}
+
+In a standalone application we also want the view to quit Python when the view is closed. This can be done by adding a method.
+
+{{{
+    def close(self):
+        appuifw2.View.close(self)
+        appuifw2.app.set_quit()
+}}}
 
 === Methods ===
 
