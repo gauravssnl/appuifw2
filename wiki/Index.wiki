@@ -6,13 +6,13 @@ This documentation describes the replaced/added functionalities only. Things tha
 
 === General ===
 
-  The *Application* object available as `appuifw2.app` variable features some new properties.
+ The *Application* object available as `appuifw2.app` variable features some new properties.
 
   * [Application]
 
 === UI controls ===
 
-These are the new or improved UI controls that can be used with either `appuifw.app.body` or `appuifw2.app.body` properties. Refer to the !PyS60 documentation to learn more about this property.
+ These are the new or improved UI controls that can be used with either `appuifw.app.body` or `appuifw2.app.body` properties. Refer to the !PyS60 documentation to learn more about this property.
 
   * [Listbox]
   * [Listbox2]
@@ -21,7 +21,7 @@ These are the new or improved UI controls that can be used with either `appuifw.
 
 === Classes ===
 
-Classes used to define data structures.
+ Classes used to define data structures.
 
   * [Menu]
   * [Item]
@@ -29,6 +29,6 @@ Classes used to define data structures.
 
 === Miscellaneous ===
 
-Various other functions.
+ Various other functions.
 
   * [Misc]
