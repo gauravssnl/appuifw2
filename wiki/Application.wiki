@@ -54,7 +54,7 @@ Contains the text (unicode) shown above the right command key (defaults to `u'Ex
 navi_text
 }}}
 
-Contains the text (unicode) shown in the navi pane (where the tabs or editor indicators are normally shown). The text is only visible when the area is not occupied by other controls.
+Contains the text (unicode) shown in the navi pane (where Calendar application displays the date). The text is only visible when the area is not occupied by other controls.
 
 ----
 
@@ -62,7 +62,7 @@ Contains the text (unicode) shown in the navi pane (where the tabs or editor ind
 left_navi_arrow
 }}}
 
-Enables (`True`) or disables (`False`) the display of the left arrow in the navi pane (where the tabs or editor indicators are normally shown). The arrow is only visible when the area is not occupied by other controls. May be used together with `navi_text` property.
+Enables (`True`) or disables (`False`) the display of the left arrow in the navi pane (such arrow can be seen in the Calendar application next to the date). The arrow is only visible when the area is not occupied by other controls. May be used together with `navi_text` property.
 
 ----
 
@@ -70,7 +70,7 @@ Enables (`True`) or disables (`False`) the display of the left arrow in the navi
 right_navi_arrow
 }}}
 
-Enables (`True`) or disables (`False`) the display of the right arrow in the navi pane (where the tabs or editor indicators are normally shown). The arrow is only visible when the area is not occupied by other controls. May be used together with `navi_text` property.
+Enables (`True`) or disables (`False`) the display of the right arrow in the navi pane (such arrow can be seen in the Calendar application next to the date). The arrow is only visible when the area is not occupied by other controls. May be used together with `navi_text` property.
 
 ----
 
