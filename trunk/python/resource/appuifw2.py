@@ -615,7 +615,7 @@ class Text(object):
 
     # properties
     for name in ('color', 'focus', 'font', 'highlight_color', 'style', 'read_only',
-            'has_changed', 'allow_undo'):
+            'has_changed', 'allow_undo', 'indicator_text'):
         exec '%s = property(lambda self: _appuifw2.Text2_get_%s(self._uicontrolapi),' \
             'lambda self, value: _appuifw2.Text2_set_%s(self._uicontrolapi, value))' % \
             (name, name, name)
@@ -1252,3 +1252,28 @@ ELangZulu = 98 # Zulu.
 ELangOther = 99 # Use of this value is deprecated.
 ELangNone = 0xFFFF # Indicates the final language in the language downgrade path.
 ELangMaximum = ELangNone # This must always be equal to the last (largest) value.
+
+
+# query() with additional 'ok' and 'cancel' args (softkey labels)
+def query(title, mode, default=None, ok=None, cancel=None):
+    if ok is not None or cancel is not None:
+        def set_ok_cancel(ok, cancel):
+            if not abort:
+                if ok is not None:
+                    try:
+                        _appuifw2.command_text(-2, ok)
+                    except SymbianError:
+                        pass
+                if cancel is not None:
+                    try:
+                        _appuifw2.command_text(-1, cancel)
+                    except SymbianError:
+                        pass
+        abort = False
+        schedule(set_ok_cancel, ok, cancel)
+    from appuifw import query
+    try:
+        return query(title, mode, default)
+    finally:
+        # if the set_ok_cancel() wasn't called yet, this will abort it
+        abort = True

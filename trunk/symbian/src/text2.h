@@ -71,5 +71,7 @@ PyObject* Text2_set_has_changed(PyObject* /*self*/, PyObject *args);
 PyObject* Text2_get_has_changed(PyObject* /*self*/, PyObject *args);
 PyObject* Text2_xy2pos(PyObject* /*self*/, PyObject *args);
 PyObject* Text2_pos2xy(PyObject* /*self*/, PyObject *args);
+PyObject* Text2_get_indicator_text(PyObject* /*self*/, PyObject *args);
+PyObject* Text2_set_indicator_text(PyObject* /*self*/, PyObject *args);
 
 #endif /* TEXT2_H */

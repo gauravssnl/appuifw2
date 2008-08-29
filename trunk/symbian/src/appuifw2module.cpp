@@ -19,6 +19,7 @@
 #include <aknnavide.h>
 #include <eikspane.h>
 #include <aknindicatorcontainer.h>
+#include <aknnavilabel.h>
 #include <eikenv.h>
 #include <eiklabel.h>
 #include <aknsutils.h>
@@ -283,10 +284,8 @@ static PyObject *command_text(PyObject* /*self*/, PyObject *args)
 			cba->DrawDeferred();
 		);
 		
-		if (error != KErrNone) {
-			PyErr_SetString(PyExc_OSError, "layout not available");
-			return NULL;
-		}
+		if (error != KErrNone)
+			return SPyErr_SetFromSymbianOSErr(error);
 	}
 
 	return pyold;
@@ -305,7 +304,7 @@ static CAknNavigationDecorator *CreateNaviDecoratorL()
 	
 	// Get the reference of the navi pane
 	CAknNavigationControlContainer* navipane=GetNaviPane();
-	iNaviDecorator = navipane->CreateEditorIndicatorContainerL();
+	iNaviDecorator = navipane->CreateNavigationLabelL();
 	// Add the indicator to navi pane
 	navipane->PushL(*iNaviDecorator);
 	
@@ -323,18 +322,12 @@ static void SetNaviPaneTitleTextL(CAknNavigationDecorator *aNaviDecorator, TNavi
 		// Get the reference of the navi pane
 		iNaviPane = GetNaviPane();
         
-		// Get the reference of the indicator container inside the gNaviDecorator
-		CAknIndicatorContainer* indiContainer = 
-		static_cast<CAknIndicatorContainer*>(aNaviDecorator->DecoratedControl());                            
+		// Get the reference of the indicator container inside the aNaviDecorator
+		CAknNaviLabel* indiContainer = 
+		static_cast<CAknNaviLabel*>(aNaviDecorator->DecoratedControl());                            
          
 		if (indiContainer && CEikStatusPaneBase::Current()) {
-        		indiContainer->SetIndicatorValueL(
-        			TUid::Uid(EAknNaviPaneEditorIndicatorMessageLength),
-        			aTitle);
-            
-			indiContainer->SetIndicatorState(
-				TUid::Uid(EAknNaviPaneEditorIndicatorMessageLength),
-				EAknIndicatorStateOn);
+        		indiContainer->SetTextL(aTitle);
 		}
 	}
 }
@@ -469,45 +462,9 @@ PyObject* get_language(PyObject* /*self*/, PyObject * /*args*/)
 	return Py_BuildValue("i", User::Language());
 }
 
-class CMyControlContext : public CBase, public MCoeControlContext
-{
-public:
-	virtual void ActivateContext(CWindowGc& aGc,RDrawableWindow& aWindow) const
-	{
-		aGc.Activate(aWindow);
-		//aGc.SetClippingRect(TRect(0, 0, 50, 50));
-		aGc.SetDrawMode(CGraphicsContext::EDrawModeNOTSCREEN);
-	}
-	
-	virtual void ResetContext(CWindowGc& aGc) const
-	{
-		//aGc.DrawRect(TRect(10, 10, 50, 50));
-		//aGc.CancelClippingRect();
-		aGc.Reset();
-	}
-
-};
 
 PyObject* test(PyObject* /*self*/, PyObject * /*args*/)
 {
-/*
-	CAmarettoAppUi *appui;
-	CCoeControl *oldcont;
-	//struct _control_object *o;
-	
-	appui = get_app()->ob_data->appui;
-	
-	oldcont = appui->iContainer;
-	
-	appui->RemoveFromStack(oldcont);
-
-	appui->iContainer = CAmarettoContainer::NewL(oldcont->Rect());
-	
-	appui->AddToStackL(appui->iContainer);
-
-	
-	//delete (CAmarettoContainer *)oldcont;
-*/
 	RETURN_PYNONE;
 }
 
@@ -591,6 +548,8 @@ static const PyMethodDef appuifw2_methods[] =
 	{"Text2_get_has_changed", (PyCFunction)Text2_get_has_changed, METH_VARARGS},
 	{"Text2_xy2pos", (PyCFunction)Text2_xy2pos, METH_VARARGS},
 	{"Text2_pos2xy", (PyCFunction)Text2_pos2xy, METH_VARARGS},
+	{"Text2_get_indicator_text", (PyCFunction)Text2_get_indicator_text, METH_VARARGS},
+	{"Text2_set_indicator_text", (PyCFunction)Text2_set_indicator_text, METH_VARARGS},
 
 	{0, 0} /* sentinel */
 };

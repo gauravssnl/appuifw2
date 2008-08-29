@@ -27,6 +27,8 @@
 #include <aknsconstants.h>  // for skin IDs
 #include <aknsbasicbackgroundcontrolcontext.h>
 #include <aknsutils.h>
+#include <aknindicatorcontainer.h>
+#include <akneditstateindicator.h>
 
 #include <Python.h>
 #include <symbian_python_ext_util.h>
@@ -206,6 +208,24 @@ public:
 						CEikScrollBarFrame::EOff);
 			);
 		}
+		TRAPD(error,
+			if (aVisible) {
+				CAknIndicatorContainer *indi=CAknEnv::Static()->
+					EditingStateIndicator()->IndicatorContainer();
+				indi->SetIndicatorValueL(TUid::Uid(EAknNaviPaneEditorIndicatorMessageLength),
+					iIndicatorText);
+				indi->SetIndicatorState(TUid::Uid(EAknNaviPaneEditorIndicatorMessageLength),
+					EAknIndicatorStateOn);
+			}
+			else {
+				CAknIndicatorContainer *indi=CAknEnv::Static()->
+					EditingStateIndicator()->IndicatorContainer();
+				indi->SetIndicatorValueL(TUid::Uid(EAknNaviPaneEditorIndicatorMessageLength),
+					_L(""));
+				indi->SetIndicatorState(TUid::Uid(EAknNaviPaneEditorIndicatorMessageLength),
+					EAknIndicatorStateOff);
+			}
+		);
 	}
 
 	// needed to draw the scrollbar background
@@ -227,6 +247,32 @@ public:
 				
 			default:
 				break;
+		}
+	}
+	
+	const TDesC &IndicatorText()
+	{
+		return iIndicatorText;
+	}
+	
+	void SetIndicatorTextL(const TDesC &aText)
+	{
+		struct _control_object *o;
+		
+		// copy maximal 32 chars
+		iIndicatorText = aText.Left(32);
+		
+		// refresh the navi indicator if needed
+		// (this is a somewhat hacky test but IsVisible() didn't work,
+		// always returned true)
+		o = AppuifwControl_AsControl(get_app()->ob_body);
+		if (o && o->ob_control == this) {
+			CAknIndicatorContainer *indi=CAknEnv::Static()->
+				EditingStateIndicator()->IndicatorContainer();
+			indi->SetIndicatorValueL(TUid::Uid(EAknNaviPaneEditorIndicatorMessageLength),
+				iIndicatorText);
+			indi->SetIndicatorState(TUid::Uid(EAknNaviPaneEditorIndicatorMessageLength),
+				EAknIndicatorStateOn);
 		}
 	}
 
@@ -260,6 +306,7 @@ private:
 	PyObject *iEditCallBack;
 	CText2EditObserver *iEditObserver;
 	const CCoeControl *iParent;
+	TBuf<32> iIndicatorText;
 };
 
 void CText2RichEditor::ConstructL(const CCoeControl* aParent, TInt aFlags, TBool aScrollBar,
@@ -1638,4 +1685,41 @@ PyObject* Text2_pos2xy(PyObject* /*self*/, PyObject *args)
 	}
 	
 	return Py_BuildValue("ii", p.iX, p.iY);
+}
+
+PyObject* Text2_get_indicator_text(PyObject* /*self*/, PyObject *args)
+{
+	PyObject *co;
+	Text2_object *o;
+	
+	if (!PyArg_ParseTuple(args, "O", &co))
+		return NULL;
+		
+	if ((o = PyCObject_AsText2(co)) == NULL)
+		return NULL;
+	
+	const TDesC &txt = o->control->IndicatorText();
+	
+	return PyUnicode_FromUnicode(txt.Ptr(), txt.Length());
+}
+
+PyObject* Text2_set_indicator_text(PyObject* /*self*/, PyObject *args)
+{
+	PyObject *co;
+	Py_UNICODE *ctext;
+	int ctextlen;
+	Text2_object *o;
+	TInt error;
+	
+	if (!PyArg_ParseTuple(args, "Ou#", &co, &ctext, &ctextlen))
+		return NULL;
+		
+	if ((o = PyCObject_AsText2(co)) == NULL)
+		return NULL;
+	
+	TRAP(error,
+		o->control->SetIndicatorTextL(TPtrC((TUint16 *)ctext, ctextlen));
+	)
+	
+	RETURN_ERROR_OR_PYNONE(error);
 }
