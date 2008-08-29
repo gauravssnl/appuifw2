@@ -315,6 +315,8 @@ indicator_text
 
 Text (unicode) displayed next to the input mode indicator in the navi pane. Works only if the indicator was not disabled during object construction (using the `indicator` argument).
 
+New in version 1.0.1.
+
 === Remarks ===
 
 Tests showed that the scrollbar works as long as the text is not longer than ca. 2000 chars. With longer texts the scrollbar can behave unexpectedly.
