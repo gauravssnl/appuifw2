@@ -8,6 +8,8 @@ query(label, type, initial_value=None, ok=None, cancel=None)
 
 This function is already known from the appuifw module. It performs a query with a single-line dialog. For the usage, refer to the !PyS60 documentation. New in this version are the `ok` and `cancel` arguments which may be used to replace the default softkeys texts (unicode).
 
+New in version 1.0.1.
+
 ----
 
 {{{
