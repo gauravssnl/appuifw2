@@ -1,0 +1,19 @@
+/*
+============================================================================
+ Name		: bld.inf
+ Author	  : Arkadiusz Wahlig
+ Copyright   : Copyright Arkadiusz Wahlig.
+ Description : This file provides the information required for building the
+				whole of a appuifw2.
+============================================================================
+*/
+
+PRJ_PLATFORMS
+DEFAULT
+
+PRJ_EXPORTS
+../inc/appuifw2module.h
+
+PRJ_MMPFILES
+appuifw2.mmp
+gnumakefile extras.make
