@@ -1,0 +1,28 @@
+appuifw2
+========
+
+Appuifw2 is an external Python module for PyS60 (a port of Python for 
+Nokia S60 platform). It is based on the built-in appuifw module providing 
+access to the S60 application UI framework and extends it with additional 
+and improved features. 
+
+For more information, visit the homepage:
+http://code.google.com/p/appuifw2/
+
+
+Testing new Text control in Python Shell
+========================================
+
+Open the Python Shell and select Interactive Console from Options menu.
+Execute the following commands:
+
+>>> import appuifw, appuifw2, __main__, series60_console
+>>> appuifw.Text = lambda t=u'': appuifw2.Text(t, skinned=True)
+>>> __main__.my_console = series60_console.Console()
+>>>
+
+Now close the interactive console using the Exit key. The screen will
+switch to a fully skinned Text console. You can reopen the console or
+start some scripts to test it.
+
+The background will remain skinned until you close the Python Shell.
