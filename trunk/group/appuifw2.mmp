@@ -1,0 +1,56 @@
+/*
+============================================================================
+ Name		: appuifw2.mmp
+ Author	  : Arkadiusz Wahlig
+ Copyright   : Copyright Arkadiusz Wahlig.
+ Description : This is the project specification file for appuifw2.
+============================================================================
+*/
+
+TARGET		  _appuifw2.pyd
+TARGETTYPE	  dll
+UID			 0x1000008d 0xEDC67CB3
+
+USERINCLUDE	 ..\inc
+SYSTEMINCLUDE   \epoc32\include \epoc32\include\libc \epoc32\include\python
+
+SOURCEPATH	  ..\src
+
+SOURCE		  appuifw2module.cpp appuifw2DllMain.cpp appuifwutil.cpp colorspec.cpp fontspec.cpp listbox2.cpp pycallback.cpp text2.cpp
+
+//By default, the build tools look for the WINSCW def file in a BWINS directory
+//(at the same level as the directory containing the mmp file), 
+//the GCC ARM def file in a BMARM directory, and the ARMV5 def file in a EABI directory. 
+//If def files are stored in these locations, the project files does not need to specify
+//the location of the def files explicitly. If you want to store the def files in some other 
+//location, you will need to specify in the project file where the .def files are using 
+//the deffile keyword.
+
+//The following commented out code shows how the build system uses the implicit
+// location for defiles. To create the DEF files Choose Project > Freeze Exports from Carbide
+// or run 'abld freeze' from the command-line
+//#if defined (WINS)
+//  DEFFILE ..\bwins\appuifw2.def
+//#elif defined (GCC32)
+//  DEFFILE ..\bmarm\appuifw2.def
+//#else 
+//  DEFFILE ..\eabi\appuifw2.def
+//#endif
+
+nostrictdef
+
+LIBRARY		 euser.lib python222.lib avkon.lib eikctl.lib eikcoctl.lib uiklaf.lib egul.lib etext.lib eikcore.lib cone.lib bafl.lib gdi.lib aknskins.lib estor.lib form.lib estlib.lib
+
+#ifdef EKA2
+LIBRARY		aknicon.lib aknskinsrv.lib aknswallpaperutils.lib
+#endif
+
+#ifdef ENABLE_ABIV2_MODE
+DEBUGGABLE
+#endif
+
+EXPORTUNFROZEN
+
+#ifdef EKA2
+CAPABILITY LocalServices Location NetworkServices PowerMgmt ProtServ ReadDeviceData ReadUserData SurroundingsDD SwEvent TrustedUI UserEnvironment WriteDeviceData WriteUserData
+#endif
