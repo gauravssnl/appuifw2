@@ -17,6 +17,7 @@
 #include <e32base.h>
 #include <aknconsts.h>
 #include <avkon.mbg>
+#include <lafpublc.h>
 #include <aknlists.h>
 #include <eikclbd.h>
 #include <gulicon.h>

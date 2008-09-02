@@ -1445,7 +1445,7 @@ PyObject* Text2_set_undo_buffer(PyObject* /*self*/, PyObject *args)
 	int pos=0, anchorpos=-1;
 	Text2_object *o;
 	TInt error;
-	TBool r;
+	TBool r=EFalse;
 	
 	if (!PyArg_ParseTuple(args, "O|ii", &co, &pos, &anchorpos))
 		return NULL;
@@ -1646,7 +1646,7 @@ PyObject* Text2_get_has_changed(PyObject* /*self*/, PyObject *args)
 PyObject* Text2_xy2pos(PyObject* /*self*/, PyObject *args)
 {
 	PyObject *co;
-	int x, y, pos;
+	int x, y, pos=0;
 	Text2_object *o;
 	TInt error;
 	TPoint p;
@@ -1675,7 +1675,7 @@ PyObject* Text2_pos2xy(PyObject* /*self*/, PyObject *args)
 	Text2_object *o;
 	TInt error;
 	TPoint p;
-	TBool form;
+	TBool form=EFalse;
 	
 	if (!PyArg_ParseTuple(args, "Oi", &co, &pos))
 		return NULL;
