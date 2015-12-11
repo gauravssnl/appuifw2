@@ -1,0 +1,1 @@
+Icon objects are used to represent an icon used in [Listbox](Listbox.md) and [Listbox2](Listbox2.md) controls items. The Icon class provided by appuifw2 is same as the Icon class provided by the original appuifw module. Therefore you should look into the PyS60 documentation for the usage.
